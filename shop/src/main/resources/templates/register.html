@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head th:replace="~{components/fragments :: cabecera('Toke Inka - Registrarse')}"></head>
+
+<body>
+    <section class="d-flex flex-column justify-content-center align-items-center" style="height: 100vh;">
+        <div class="d-flex flex-column flex-md-row bg-warning rounded shadow no-shadow-md-down overflow-hidden"
+            style="max-width: 1000px; width: 100%;">
+
+            <div class="w-100 w-md-50 d-none d-md-block">
+                <img src="../images/register_image.png" alt="Registro Toke Inka"
+                    class="img-fluid h-100 w-100 object-fit-cover" />
+            </div>
+
+            <div class="w-100 h-100 w-md-50 bg-white p-4 d-flex flex-column justify-content-center gap-3">
+                <h1 class="fs-3 fs-lg-2 text-center h-100 d-flex justify-content-center align-items-end">Registrarse</h1>
+                <form th:action="@{/register}" th:object="${usuario}" method="post"
+                    class="gap-4 d-flex flex-column justify-content-around">
+                    <div class="">
+                        <input type="text" class="form-control" th:field="*{nombre}" placeholder="Nombre" maxlength="50"
+                            required aria-describedby="inputNameBlock" />
+                        <div id="inputNameBlock" class="form-text">Ingrese sus nombres completos.
+                        </div>
+                    </div>
+                    <div class="">
+                        <input type="text" class="form-control"  th:field="*{apellido}" placeholder="Apellido"
+                            maxlength="50" required aria-describedby="inputLastNameBlock" />
+                        <div id="inputLastNameBlock" class="form-text">Ingrese su apellidos completos.
+                        </div>
+                    </div>
+                    <div class="">
+                        <input type="email" class="form-control" th:field="*{email}" placeholder="Correo" required
+                            aria-describedby="inputEmailBlock" />
+                        <div id="inputEmailBlock" class="form-text">Ingrese su correo electrónico.
+                        </div>
+                    </div>
+                    <div class="">
+                        <input type="password" class="form-control" th:field="*{contraseña}" placeholder="Contraseña"
+                            minlength="10" maxlength="20" required aria-describedby="inputPasswordBlock" />
+                        <div id="inputPasswordBlock" class="form-text">Ingrese su contraseña. Debe tener al menos 10
+                            caracteres.</div>
+                    </div>
+                    <button type="submit" class="w-100">Registrar</button>
+                </form>
+                <div class="text-center h-75 w-100 d-flex justify-content-end align-items-end">
+                    <a href="/" class="link-primary link-offset-2 link-underline link-underline-opacity-0 ">
+                        <i class="bi bi-arrow-left"></i> Volver al inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

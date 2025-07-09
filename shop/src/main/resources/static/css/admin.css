@@ -1,0 +1,42 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+h1 {
+    color: black;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    margin-top: 20px;
+}
+
+table, th, td {
+    border: 1px solid #ccc;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+a.btn {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+a.btn:hover {
+    background-color: #0056b3;
+}
+
+button {
+    padding: 10px 15px;
+    margin-top: 10px;
+}

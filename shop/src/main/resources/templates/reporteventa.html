@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head th:replace="~{components/fragments :: cabecera('Inicio - Panel Administrador')}"></head>
+
+<body>
+    <div class="d-flex min-vh-100">
+        <header th:replace="~{components/fragments :: navAdmin}"></header>
+        <section class="w-100 px-4">
+            <div class="d-flex justify-content-between align-items-center py-2">
+                <h1 class="align-middle"><b>Panel de Administrador</b></h1>
+            </div>
+
+            <!-- Dashboard Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">Ventas Hoy</h4>
+                                    <h2 id="ventasHoy">S/. 0.00</h2>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-chart-line fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">Ventas Mes</h4>
+                                    <h2 id="ventasMes">S/. 0.00</h2>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-calendar-month fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">Total Pedidos</h4>
+                                    <h2 id="totalPedidos">0</h2>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-shopping-cart fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="card-title">Producto Top</h4>
+                                    <h6 id="productoTop">-</h6>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-star fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Filtros de Búsqueda</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label for="fechaInicio" class="form-label">Fecha Inicio</label>
+                            <input type="date" class="form-control" id="fechaInicio">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="fechaFin" class="form-label">Fecha Fin</label>
+                            <input type="date" class="form-control" id="fechaFin">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="cliente" class="form-label">Cliente</label>
+                            <input type="text" class="form-control" id="cliente" placeholder="Buscar por nombre">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-primary" onclick="aplicarFiltros()">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                                <button class="btn btn-secondary" onclick="limpiarFiltros()">
+                                    <i class="fas fa-eraser"></i> Limpiar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Ventas -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3>Reporte de Ventas</h3>
+                    <div>
+                        <button class="btn btn-success" onclick="exportarExcel()">
+                            <i class="fas fa-file-excel"></i> Exportar Excel
+                        </button>
+                        <button class="btn btn-danger" onclick="exportarPDF()">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="tablaVentas">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Teléfono</th>
+                                    <th>Productos</th>
+                                    <th>Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoTabla">
+                                <!-- Los datos se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Paginación -->
+                    <nav aria-label="Paginación">
+                        <ul class="pagination justify-content-center" id="paginacion">
+                            <!-- La paginación se generará aquí -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Gráfico de Ventas -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3>Gráfico de Ventas por Mes</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="graficoVentas" height="100"></canvas>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal Detalle de Venta -->
+    <div class="modal fade" id="modalDetalle" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalle de Venta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="detalleVenta">
+                    <!-- El detalle se cargará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        let ventasData = [];
+        let paginaActual = 1;
+        const registrosPorPagina = 10;
+        let graficoVentas;
+
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarDashboard();
+            cargarVentas();
+            inicializarFechas();
+        });
+
+        function inicializarFechas() {
+            const hoy = new Date();
+            const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            
+            document.getElementById('fechaInicio').value = inicioMes.toISOString().split('T')[0];
+            document.getElementById('fechaFin').value = hoy.toISOString().split('T')[0];
+        }
+
+        async function cargarDashboard() {
+            try {
+                const response = await fetch('/api/admin/dashboard');
+                const data = await response.json();
+                
+                document.getElementById('ventasHoy').textContent = `S/. ${data.ventasHoy.toFixed(2)}`;
+                document.getElementById('ventasMes').textContent = `S/. ${data.ventasMes.toFixed(2)}`;
+                document.getElementById('totalPedidos').textContent = data.totalPedidos;
+                document.getElementById('productoTop').textContent = data.productoTop || 'Sin datos';
+                
+                crearGrafico(data.ventasPorMes);
+            } catch (error) {
+                console.error('Error al cargar dashboard:', error);
+            }
+        }
+
+        async function cargarVentas(filtros = {}) {
+            try {
+                const params = new URLSearchParams(filtros);
+                const response = await fetch(`/api/admin/ventas?${params}`);
+                ventasData = await response.json();
+                
+                mostrarVentas();
+                actualizarPaginacion();
+            } catch (error) {
+                console.error('Error al cargar ventas:', error);
+                Swal.fire('Error', 'No se pudieron cargar las ventas', 'error');
+            }
+        }
+
+        function mostrarVentas() {
+            const inicio = (paginaActual - 1) * registrosPorPagina;
+            const fin = inicio + registrosPorPagina;
+            const ventasPagina = ventasData.slice(inicio, fin);
+            
+            const tbody = document.getElementById('cuerpoTabla');
+            tbody.innerHTML = '';
+            
+            ventasPagina.forEach(venta => {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${venta.id}</td>
+                    <td>${new Date(venta.fecha).toLocaleDateString('es-PE')}</td>
+                    <td>${venta.nombre}</td>
+                    <td>${venta.telefono}</td>
+                    <td>
+                        <span class="badge bg-info">${venta.productos.length} productos</span>
+                    </td>
+                    <td><strong>S/. ${venta.total.toFixed(2)}</strong></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="verDetalle(${venta.id})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-success" onclick="descargarComprobante(${venta.id})">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(fila);
+            });
+        }
+
+        function actualizarPaginacion() {
+            const totalPaginas = Math.ceil(ventasData.length / registrosPorPagina);
+            const paginacion = document.getElementById('paginacion');
+            paginacion.innerHTML = '';
+            
+            // Botón anterior
+            const anterior = document.createElement('li');
+            anterior.className = `page-item ${paginaActual === 1 ? 'disabled' : ''}`;
+            anterior.innerHTML = `<a class="page-link" href="#" onclick="cambiarPagina(${paginaActual - 1})">Anterior</a>`;
+            paginacion.appendChild(anterior);
+            
+            // Números de página
+            for (let i = 1; i <= totalPaginas; i++) {
+                const pagina = document.createElement('li');
+                pagina.className = `page-item ${i === paginaActual ? 'active' : ''}`;
+                pagina.innerHTML = `<a class="page-link" href="#" onclick="cambiarPagina(${i})">${i}</a>`;
+                paginacion.appendChild(pagina);
+            }
+            
+            // Botón siguiente
+            const siguiente = document.createElement('li');
+            siguiente.className = `page-item ${paginaActual === totalPaginas ? 'disabled' : ''}`;
+            siguiente.innerHTML = `<a class="page-link" href="#" onclick="cambiarPagina(${paginaActual + 1})">Siguiente</a>`;
+            paginacion.appendChild(siguiente);
+        }
+
+        function cambiarPagina(pagina) {
+            if (pagina >= 1 && pagina <= Math.ceil(ventasData.length / registrosPorPagina)) {
+                paginaActual = pagina;
+                mostrarVentas();
+                actualizarPaginacion();
+            }
+        }
+
+        function aplicarFiltros() {
+            const filtros = {
+                fechaInicio: document.getElementById('fechaInicio').value,
+                fechaFin: document.getElementById('fechaFin').value,
+                cliente: document.getElementById('cliente').value
+            };
+            
+            paginaActual = 1;
+            cargarVentas(filtros);
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('fechaInicio').value = '';
+            document.getElementById('fechaFin').value = '';
+            document.getElementById('cliente').value = '';
+            inicializarFechas();
+            aplicarFiltros();
+        }
+
+        async function verDetalle(ventaId) {
+            try {
+                const response = await fetch(`/api/admin/ventas/${ventaId}`);
+                const venta = await response.json();
+                
+                let detalleHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><strong>Información del Cliente</strong></h6>
+                            <p><strong>Nombre:</strong> ${venta.nombre}</p>
+                            <p><strong>Teléfono:</strong> ${venta.telefono}</p>
+                            <p><strong>Dirección:</strong> ${venta.direccion}</p>
+                            <p><strong>Fecha:</strong> ${new Date(venta.fecha).toLocaleDateString('es-PE')}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><strong>Resumen de Compra</strong></h6>
+                            <p><strong>Total de Productos:</strong> ${venta.productos.length}</p>
+                            <p><strong>Total a Pagar:</strong> <span class="text-success">S/. ${venta.total.toFixed(2)}</span></p>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6><strong>Productos Comprados</strong></h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                venta.productos.forEach(producto => {
+                    const subtotal = producto.quantity * producto.unit_price;
+                    detalleHTML += `
+                        <tr>
+                            <td>${producto.title}</td>
+                            <td>${producto.quantity}</td>
+                            <td>S/. ${producto.unit_price.toFixed(2)}</td>
+                            <td>S/. ${subtotal.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+                
+                detalleHTML += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                
+                document.getElementById('detalleVenta').innerHTML = detalleHTML;
+                new bootstrap.Modal(document.getElementById('modalDetalle')).show();
+                
+            } catch (error) {
+                console.error('Error al cargar detalle:', error);
+                Swal.fire('Error', 'No se pudo cargar el detalle de la venta', 'error');
+            }
+        }
+
+        async function descargarComprobante(ventaId) {
+            try {
+                const response = await fetch(`/api/admin/ventas/${ventaId}/comprobante`);
+                if (!response.ok) throw new Error('Error al descargar');
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `comprobante_${ventaId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+            } catch (error) {
+                console.error('Error al descargar comprobante:', error);
+                Swal.fire('Error', 'No se pudo descargar el comprobante', 'error');
+            }
+        }
+
+        function crearGrafico(datosPorMes) {
+            const ctx = document.getElementById('graficoVentas').getContext('2d');
+            
+            if (graficoVentas) {
+                graficoVentas.destroy();
+            }
+            
+            graficoVentas = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: datosPorMes.map(d => d.mes),
+                    datasets: [{
+                        label: 'Ventas (S/.)',
+                        data: datosPorMes.map(d => d.total),
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'S/. ' + value.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportarExcel() {
+            // Implementar exportación a Excel
+            Swal.fire('Información', 'Función de exportar Excel en desarrollo', 'info');
+        }
+
+        function exportarPDF() {
+            // Implementar exportación a PDF
+            Swal.fire('Información', 'Función de exportar PDF en desarrollo', 'info');
+        }
+    </script>
+
+    <style>
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 1rem;
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+        }
+        
+        .badge {
+            font-size: 0.8em;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .modal-lg {
+            max-width: 800px;
+        }
+    </style>
+</body>
+</html>

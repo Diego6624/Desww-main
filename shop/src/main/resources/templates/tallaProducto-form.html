@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head th:replace="~{components/fragments :: cabecera('Nueva talla por producto')}"></head>
+
+<body>
+    <div class="d-flex min-vh-100">
+        <header th:replace="~{components/fragments :: navAdmin}"></header>
+        <section class="d-flex flex-column align-items-center w-100 px-4 mt-5">
+            <div class="d-flex align-items-center py-2">
+                <h1 class="align-middle"><b>Asignar talla a "[[${producto.nombreProducto}]]"</b></h1>
+            </div>
+
+            <form th:action="@{/admin/talla-producto/guardar}" method="post" th:object="${tallaProducto}"
+                class="w-25 d-flex flex-column gap-3">
+                <input type="hidden" th:field="*{producto.idProducto}" />
+
+                <div class="d-flex flex-column gap-2">
+                    <label>Talla:</label>
+                    <select th:field="*{talla.idTalla}" class="form-select">
+                        <option th:each="t : ${tallas}" th:value="${t.idTalla}" th:text="${t.nombreTalla}"></option>
+                    </select>
+                </div>
+
+                <div class="d-flex flex-column gap-2">
+                    <label>Stock:</label>
+                    <input type="number" th:field="*{stock}" required min="0" maxlength="50" class="form-control" />
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="submit" id="guardar-button" class="btn btn-primary">Guardar</button>
+                    <a th:href="@{/admin/talla-producto}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </section>
+    </div>
+</body>
+
+</html>

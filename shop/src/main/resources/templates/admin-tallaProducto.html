@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head th:replace="~{components/fragments :: cabecera('Tallas por Productos - Panel Administrador')}"></head>
+
+<body>
+    <div class="d-flex min-vh-100">
+        <header th:replace="~{components/fragments :: navAdmin}"></header>
+        <section class="w-100 px-4">
+            <div class="d-flex justify-content-between align-items-center py-2">
+                <h1 class="align-middle"><b>Stock de productos por talla</b></h1>
+            </div>
+            <table class="table table-light table-striped table-hover">
+                <tr class="table-dark text-center">
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Talla</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                </tr>
+                <tr th:each="tp : ${tallasProductos}" class="align-middle">
+                    <td th:text="${tp.idTallaProducto}" class="text-center"></td>
+                    <td th:text="${tp.producto.nombreProducto}" class="text-center"></td>
+                    <td th:text="${tp.talla.nombreTalla}" class="text-center"></td>
+                    <td th:text="${tp.stock}" class="text-center"></td>
+                    <td class="d-flex gap-2 justify-content-center">
+                        <a th:href="@{'/admin/talla-producto/editar/' + ${tp.idTallaProducto}}"
+                            class="text-decoration-none btn btn-warning">Editar</a>
+                        <a th:href="@{'/admin/talla-producto/eliminar/' + ${tp.idTallaProducto}}"
+                            class="text-decoration-none btn btn-danger"
+                            onclick="return confirm('¿Estás seguro de eliminar?')">Eliminar</a>
+                    </td>
+                </tr>
+            </table>
+        </section>
+    </div>
+</body>
+</html>
