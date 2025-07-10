@@ -64,7 +64,7 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
             .anyRequest().authenticated())
         .formLogin(form -> form
             .loginPage("/login")
-            .successHandler(customAuthenticationSuccessHandler) // <- esto
+            .successHandler(customAuthenticationSuccessHandler)
             .permitAll())
         .logout(logout -> logout
             .logoutSuccessUrl("/")

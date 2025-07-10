@@ -1,277 +1,273 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="~{components/fragments :: cabecera('Toke Inka - Producto')}"></head>
 
 <body>
-    <section class="d-flex flex-column min-vh-100">
-        <header th:replace="~{components/fragments :: header}"></header>
+  <section class="d-flex flex-column min-vh-100">
+    <header th:replace="~{components/fragments :: header}"></header>
 
-        <main class="flex-grow-1 py-5">
-            <div class="container">
-                <!-- Título de la sección -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <h2 class="text-center fw-bold">Nuestros Productos</h2>
-                        <hr class="mx-auto" style="width: 100px;">
-                    </div>
-                </div>
+    <main class="flex-grow-1 py-5">
+      <div class="container">
+        <!-- Título de la sección -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <h2 class="text-center fw-bold">Nuestros Productos</h2>
+            <hr class="mx-auto" style="width: 100px;">
+          </div>
+        </div>
 
-                <!-- Busqueda y Filtros -->
-                <div class="row mb-4 g-2 justify-content-center">
-                    <div class="col-md-8 ">
-                        <form th:action="@{/productos/filtrar}" method="get"
-                            class="input-group shadow-sm rounded d-flex gap-1">
-                            <input class="form-control" type="search" name="filtro"
-                                placeholder="Buscar productos por nombre o categoría..." aria-label="Buscar productos"
-                                th:value="${param.filtro}" autocomplete="off" />
-                            <button
-                                class="btn btn-index d-flex justify-content-center align-items-center gap-2 px-3 py-lg-3 py-2"
-                                type="submit" title="Buscar">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
+        <!-- Busqueda y Filtros -->
+        <div class="row mb-4 g-2 justify-content-center">
+          <div class="col-md-8 ">
+            <form th:action="@{/productos/filtrar}" method="get" class="input-group shadow-sm rounded d-flex gap-1">
+              <input class="form-control" type="search" name="filtro"
+                placeholder="Buscar productos por nombre o categoría..." aria-label="Buscar productos"
+                th:value="${param.filtro}" autocomplete="off" />
+              <button class="btn btn-index d-flex justify-content-center align-items-center gap-2 px-3 py-lg-3 py-2"
+                type="submit" title="Buscar">
+                <i class="bi bi-search"></i>
+              </button>
+            </form>
+          </div>
+        </div>
 
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="productosLista">
-                    <div th:each="p : ${productos}" class="col producto">
-                        <div class="card h-100 shadow-sm">
-                            <img th:src="@{'/imagenes/' + ${p.imagenProducto}}"
-                                class="card-img-top object-fit-cover" style="height: 400px; width: 100%;"
-                                th:alt="${p.nombreProducto}">
-                            <div class="card-body">
-                                <h5 class="card-title fw-bold" th:text="${p.nombreProducto}"></h5>
-                                <p class="card-text" th:text="${p.descripcionProducto}"></p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="h5 mb-0" th:text="'S/. ' + ${p.precioProducto}"></span>
-                                    <div class="d-flex gap-2">
-                                        <a th:href="@{'/productos/detalle/' + ${p.idProducto}}" 
-                                           class="btn btn-outline-secondary btn-sm">
-                                            <i class="bi bi-eye"></i> Ver detalles
-                                        </a>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="productosLista">
+          <div th:each="p : ${productos}" class="col producto">
+            <div class="card h-100 shadow-sm">
+              <img th:src="@{'/imagenes/' + ${p.imagenProducto}}" class="card-img-top object-fit-cover"
+                style="height: 400px; width: 100%;" th:alt="${p.nombreProducto}">
+              <div class="card-body">
+                <h5 class="card-title fw-bold" th:text="${p.nombreProducto}"></h5>
+                <p class="card-text" th:text="${p.descripcionProducto}"></p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="h5 mb-0" th:text="'S/. ' + ${p.precioProducto}"></span>
+                  <div class="d-flex gap-2">
+                    <a th:href="@{'/productos/detalle/' + ${p.idProducto}}" class="btn btn-outline-secondary btn-sm">
+                      <i class="bi bi-eye"></i> Ver detalles
+                    </a>
+                  </div>
                 </div>
+              </div>
             </div>
-        </main>
-
-        <footer th:replace="~{components/fragments :: footer}"></footer>
-    </section>
-
-    <!-- Modal del Carrito -->
-    <div class="wrapper-layer" style="display: none;">
-        <div class="layer">
-            <span class="close-cart">&times;</span>
-            <table class="shopping">
-                <thead>
-                    <th>Producto</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Cantidad</th>
-                    <th>Eliminar</th>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <button id="btnPagar">Proceder a pago</button>
+          </div>
         </div>
-    </div>
+      </div>
+    </main>
 
-    <!-- Modal de Opciones de Pago -->
-    <div id="modalOpcionesPago" class="modal" style="display: none;">
-        <div class="modal-content">
-            <button id="btnCerrarOpcionesPago" class="btnCerrarModal"><i class="fas fa-times"></i></button>
-            <div class="payment-buttons"></div>
-            <div id="paypal-button-container"></div>
+    <footer th:replace="~{components/fragments :: footer}"></footer>
+  </section>
+
+  <!-- Modal del Carrito -->
+  <div class="wrapper-layer" style="display: none;">
+    <div class="layer">
+      <span class="close-cart">&times;</span>
+      <table class="shopping">
+        <thead>
+          <th>Producto</th>
+          <th>Descripción</th>
+          <th>Precio</th>
+          <th>Cantidad</th>
+          <th>Eliminar</th>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button id="btnPagar">Proceder a pago</button>
+    </div>
+  </div>
+
+  <!-- Modal de Opciones de Pago -->
+  <div id="modalOpcionesPago" class="modal" style="display: none;">
+    <div class="modal-content">
+      <button id="btnCerrarOpcionesPago" class="btnCerrarModal"><i class="fas fa-times"></i></button>
+      <div class="payment-buttons"></div>
+      <div id="paypal-button-container"></div>
+    </div>
+  </div>
+
+  <!-- Modal de pago simulado -->
+  <div class="modal fade" id="modalPago" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content p-4">
+        <h5 class="modal-title">Pago con tarjeta</h5>
+        <div class="modal-body">
+
+          <input type="text" id="nombreCliente" placeholder="Nombre completo" class="form-control mb-2" required>
+          <input type="text" id="direccion" placeholder="Dirección" class="form-control mb-2" required>
+          <input type="text" id="telefono" placeholder="Teléfono" class="form-control mb-2" required>
+
+
+          <input type="text" id="numeroTarjeta" placeholder="Número de tarjeta" class="form-control mb-2" required>
+          <input type="text" id="cci" placeholder="CCI" class="form-control mb-2" required>
+          <input type="text" id="titular" placeholder="Nombre del titular" class="form-control mb-2" required>
+          <input type="month" id="vencimiento" class="form-control mb-2" required>
+
+          <button id="btnProcesarPago" class="btn btn-success w-100">Procesar Pago</button>
         </div>
-    </div>
-
-   <!-- Modal de pago simulado -->
-<div class="modal fade" id="modalPago" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content p-4">
-      <h5 class="modal-title">Pago con tarjeta</h5>
-      <div class="modal-body">
-        
-        <input type="text" id="nombreCliente" placeholder="Nombre completo" class="form-control mb-2" required>
-        <input type="text" id="direccion" placeholder="Dirección" class="form-control mb-2" required>
-        <input type="text" id="telefono" placeholder="Teléfono" class="form-control mb-2" required>
-
-        
-        <input type="text" id="numeroTarjeta" placeholder="Número de tarjeta" class="form-control mb-2" required>
-        <input type="text" id="cci" placeholder="CCI" class="form-control mb-2" required>
-        <input type="text" id="titular" placeholder="Nombre del titular" class="form-control mb-2" required>
-        <input type="month" id="vencimiento" class="form-control mb-2" required>
-
-        <button id="btnProcesarPago" class="btn btn-success w-100">Procesar Pago</button>
       </div>
     </div>
   </div>
-</div>
 
 
 
 
 
-<script>
-document.getElementById("btnPagar").addEventListener("click", () => {
-  const modal = new bootstrap.Modal(document.getElementById("modalPago"));
-  modal.show();
-});
-
-document.getElementById("btnProcesarPago").addEventListener("click", async () => {
-  try {
-    const nombre = document.getElementById("nombreCliente").value.trim();
-    const direccion = document.getElementById("direccion").value.trim();
-    const telefono = document.getElementById("telefono").value.trim();
-
-    const tarjeta = document.getElementById("numeroTarjeta").value.trim();
-    const cci = document.getElementById("cci").value.trim();
-    const titular = document.getElementById("titular").value.trim();
-    const vencimiento = document.getElementById("vencimiento").value.trim();
-
-    // Validación de campos
-    if (!nombre || !direccion || !telefono || !tarjeta || !cci || !titular || !vencimiento) {
-      return Swal.fire("Error", "Por favor completa todos los campos", "error");
-    }
-
-    
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-    if (carrito.length === 0) {
-      return Swal.fire("Carrito vacío", "No hay productos para procesar", "error");
-    }
-
-    console.log("🛒 Carrito obtenido:", carrito);
-
-    
-    const productos = carrito.map(item => {
-      console.log("📦 Procesando item:", item);
-      return {
-        title: item.nombre || item.title || item.product || "Producto sin nombre",
-        quantity: parseInt(item.cantidad || item.quantity || 1),
-        unit_price: parseFloat(item.precio || item.price || item.unit_price || 0)
-      };
+  <script>
+    document.getElementById("btnPagar").addEventListener("click", () => {
+      const modal = new bootstrap.Modal(document.getElementById("modalPago"));
+      modal.show();
     });
 
-    console.log("📋 Productos preparados:", productos);
+    document.getElementById("btnProcesarPago").addEventListener("click", async () => {
+      try {
+        const nombre = document.getElementById("nombreCliente").value.trim();
+        const direccion = document.getElementById("direccion").value.trim();
+        const telefono = document.getElementById("telefono").value.trim();
 
-    
-    const total = productos.reduce((sum, p) => sum + (p.quantity * p.unit_price), 0);
+        const tarjeta = document.getElementById("numeroTarjeta").value.trim();
+        const cci = document.getElementById("cci").value.trim();
+        const titular = document.getElementById("titular").value.trim();
+        const vencimiento = document.getElementById("vencimiento").value.trim();
 
-    const body = {
-      nombre,
-      direccion,
-      telefono,
-      fecha: new Date().toLocaleDateString('es-PE'),
-      productos,
-      total: total.toFixed(2)
-    };
+        // Validación de campos
+        if (!nombre || !direccion || !telefono || !tarjeta || !cci || !titular || !vencimiento) {
+          return Swal.fire("Error", "Por favor completa todos los campos", "error");
+        }
 
-    console.log("📤 Enviando datos:", body);
 
-    
-    const btnProcesar = document.getElementById("btnProcesarPago");
-    const textoOriginal = btnProcesar.innerHTML;
-    btnProcesar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Procesando...';
-    btnProcesar.disabled = true;
+        const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+        if (carrito.length === 0) {
+          return Swal.fire("Carrito vacío", "No hay productos para procesar", "error");
+        }
 
-    const response = await fetch("http://localhost:8080/api/pago/procesar", {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Accept": "application/pdf"
-      },
-      body: JSON.stringify(body)
+        console.log("🛒 Carrito obtenido:", carrito);
+
+
+        const productos = carrito.map(item => {
+          console.log("📦 Procesando item:", item);
+          return {
+            title: item.nombre || item.title || item.product || "Producto sin nombre",
+            quantity: parseInt(item.cantidad || item.quantity || 1),
+            unit_price: parseFloat(item.precio || item.price || item.unit_price || 0)
+          };
+        });
+
+        console.log("📋 Productos preparados:", productos);
+
+
+        const total = productos.reduce((sum, p) => sum + (p.quantity * p.unit_price), 0);
+
+        const body = {
+          nombre,
+          direccion,
+          telefono,
+          fecha: new Date().toLocaleDateString('es-PE'),
+          productos,
+          total: total.toFixed(2)
+        };
+
+        console.log("📤 Enviando datos:", body);
+
+
+        const btnProcesar = document.getElementById("btnProcesarPago");
+        const textoOriginal = btnProcesar.innerHTML;
+        btnProcesar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Procesando...';
+        btnProcesar.disabled = true;
+
+        const response = await fetch("http://localhost:8080/api/pago/procesar", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/pdf"
+          },
+          body: JSON.stringify(body)
+        });
+
+        console.log("📡 Respuesta del servidor:", response.status, response.statusText);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("❌ Error del servidor:", errorText);
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+
+        const blob = await response.blob();
+        console.log("📄 PDF generado, tamaño:", blob.size, "bytes");
+
+        const pdfUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = pdfUrl;
+        link.download = `comprobante_pago_${new Date().getTime()}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(pdfUrl);
+
+
+        const datosResumen = {
+          nombre,
+          direccion,
+          telefono,
+          fecha: new Date().toLocaleDateString('es-PE'),
+          productos: productos.map(p => ({
+            nombre: p.title,
+            cantidad: p.quantity,
+            precio: p.unit_price.toFixed(2),
+            subtotal: (p.quantity * p.unit_price).toFixed(2)
+          })),
+          total: total.toFixed(2)
+        };
+
+
+        localStorage.setItem("resumenPago", JSON.stringify(datosResumen));
+
+
+        localStorage.removeItem("carrito");
+
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById("modalPago"));
+        modal.hide();
+
+
+        await Swal.fire({
+          title: "¡Pago procesado!",
+          text: "Tu comprobante ha sido descargado y serás redirigido al resumen.",
+          icon: "success",
+          timer: 2000
+        });
+
+
+        window.location.href = "/resumen";
+
+      } catch (error) {
+        console.error("❌ Error al procesar pago:", error);
+        Swal.fire({
+          title: "Error",
+          text: "No se pudo procesar el pago: " + error.message,
+          icon: "error"
+        });
+      } finally {
+
+        const btnProcesar = document.getElementById("btnProcesarPago");
+        if (btnProcesar) {
+          btnProcesar.innerHTML = "Procesar Pago";
+          btnProcesar.disabled = false;
+        }
+      }
     });
-
-    console.log("📡 Respuesta del servidor:", response.status, response.statusText);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("❌ Error del servidor:", errorText);
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-
-   
-    const blob = await response.blob();
-    console.log("📄 PDF generado, tamaño:", blob.size, "bytes");
-    
-    const pdfUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = pdfUrl;
-    link.download = `comprobante_pago_${new Date().getTime()}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(pdfUrl);
-
-    
-    const datosResumen = {
-      nombre,
-      direccion,
-      telefono,
-      fecha: new Date().toLocaleDateString('es-PE'),
-      productos: productos.map(p => ({
-        nombre: p.title,
-        cantidad: p.quantity,
-        precio: p.unit_price.toFixed(2),
-        subtotal: (p.quantity * p.unit_price).toFixed(2)
-      })),
-      total: total.toFixed(2)
-    };
-
-    
-    localStorage.setItem("resumenPago", JSON.stringify(datosResumen));
-    
-    
-    localStorage.removeItem("carrito");
-    
-    
-    const modal = bootstrap.Modal.getInstance(document.getElementById("modalPago"));
-    modal.hide();
-
-    
-    await Swal.fire({
-      title: "¡Pago procesado!",
-      text: "Tu comprobante ha sido descargado y serás redirigido al resumen.",
-      icon: "success",
-      timer: 2000
-    });
-
-   
-    window.location.href = "/resumen";
-
-  } catch (error) {
-    console.error("❌ Error al procesar pago:", error);
-    Swal.fire({
-      title: "Error",
-      text: "No se pudo procesar el pago: " + error.message,
-      icon: "error"
-    });
-  } finally {
-    
-    const btnProcesar = document.getElementById("btnProcesarPago");
-    if (btnProcesar) {
-      btnProcesar.innerHTML = "Procesar Pago";
-      btnProcesar.disabled = false;
-    }
-  }
-});
-</script>
+  </script>
 
 
-  
-    <!-- Scripts necesarios para el carrito -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://sdk.mercadopago.com/js/v2"></script>
-    <script src="https://www.paypal.com/sdk/js?client-id=AYhM7Gub_jwpY34KhU90XB7F6AlZOCZmitUmdZ4qjZTzkXFF6L-KXjBpJLXeA8gVDs0zYvjaiBADujQQ"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script th:src="@{/js/scripts.js}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+  <!-- Scripts necesarios para el carrito -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+  <script
+    src="https://www.paypal.com/sdk/js?client-id=AYhM7Gub_jwpY34KhU90XB7F6AlZOCZmitUmdZ4qjZTzkXFF6L-KXjBpJLXeA8gVDs0zYvjaiBADujQQ"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script th:src="@{/js/scripts.js}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </body>
 
 </html>

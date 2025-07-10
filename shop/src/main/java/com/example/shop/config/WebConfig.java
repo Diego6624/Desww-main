@@ -30,5 +30,4 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:" + System.getProperty("user.dir") + File.separator + "shop"
                         + File.separator + "imagenes" + File.separator);
     }
-
 }

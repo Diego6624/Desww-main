@@ -12,7 +12,8 @@
                 <div class="row d-flex justify-content-center align-items-center gap-4">
                     <!-- IMAGEN -->
                     <div class="col-md-4 d-flex justify-content-center align-items-center h-100">
-                        <img th:src="@{'/imagenes/' + ${producto.imagenProducto}}" class="" alt="Imagen del producto">
+                        <img th:src="@{'/imagenes/' + ${producto.imagenProducto}}" class=""
+                            th:alt="${producto.nombreProducto}">
                     </div>
                     <!-- Info Producto -->
                     <div
@@ -21,6 +22,7 @@
                         <div class="d-flex flex-column">
                             <h6 th:text="${producto.categoria.nombreCategoria}" class="text-secondary-emphasis"></h6>
                             <h2 th:text="${producto.nombreProducto}" id="nombreProducto"></h2>
+                            <input type="hidden" id="productoId" th:value="${producto.idProducto}" />
                         </div>
                         <!-- Descripción -->
                         <div class="d-flex flex-column gap-2">
@@ -38,7 +40,7 @@
                                 <option value="" disabled selected>Seleccione una talla</option>
                                 <option th:each="tp : ${tallas}" th:value="${tp.talla.idTalla}"
                                     th:data-stock="${tp.stock}" th:data-nombre-talla="${tp.talla.nombreTalla}"
-                                    th:text="${tp.talla.nombreTalla + ' - Stock: ' + tp.stock}">
+                                    th:data-id-talla="${tp.talla.idTalla}" th:text="${tp.talla.nombreTalla + ' - Stock: ' + tp.stock}">
                                 </option>
                             </select>
                         </div>
@@ -63,25 +65,6 @@
                     </div>
                 </div>
             </div>
-            <!-- <div class="d-flex flex-column gap-4 container mt-5">
-                <h3>Productos Relacionados</h3>
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="productosRelacionadosLista">
-                    <div th:each="p : ${productos}" class="container">
-                        <a th:href="@{'/productos/detalle/' + ${p.idProducto}}"
-                            style="text-decoration: none; color: inherit;">
-                            <div class="card h-100 shadow-sm">
-                                <img th:src="@{'/imagenes/' + ${p.imagenProducto}}"
-                                    class="card-img-top object-fit-cover" style="height: 400px; width: 100%;"
-                                    th:alt="${p.nombreProducto}">
-                                <div class="card-body">
-                                    <h5 class="card-title fw-bold" th:text="${p.nombreProducto}"></h5>
-                                    <p class="card-text" th:text="${p.descripcionProducto}"></p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div> -->
         </main>
 
         <footer th:replace="~{components/fragments :: footer}"></footer>
@@ -440,12 +423,15 @@
 
             // Función para agregar al carrito específica del detalle
             window.agregarAlCarrito = function () {
-                var tallaSelect = document.getElementById('tallaSeleccionada');
-                var cantidadInput = document.getElementById('cantidad');
+                const tallaSelect = document.getElementById('tallaSeleccionada');
+                const cantidadInput = document.getElementById('cantidad');
+                const nombreProduct = document.getElementById('nombreProducto');
+                const descripcionProduct = document.getElementById('descripcionProducto');
+                const precioProducto = document.getElementById('precioProducto');
 
                 // Validar que se haya seleccionado una talla
-                if (!tallaSelect.value) {
-                    mostrarNotificacion('Por favor selecciona una talla', 'warning');
+                if (!tallaSelect || !cantidadInput || !nombreProduct || !descripcionProduct || !precioProducto) {
+                    console.warn("🔍 Elementos del DOM no encontrados. ¿Estás en la vista correcta?");
                     return;
                 }
 
@@ -460,9 +446,9 @@
                 }
 
                 // Obtener datos del producto
-                var nombreProducto = document.getElementById('nombreProducto').textContent;
-                var descripcionProducto = document.getElementById('descripcionProducto').textContent;
-                var precioTexto = document.getElementById('precioProducto').textContent;
+                var nombreProducto = nombreProduct.textContent;
+                var descripcionProducto = descripcionProduct.textContent;
+                var precioTexto = precioProducto.textContent;
                 var precio = precioTexto.replace('S/ ', '');
                 var nombreTalla = opcionSeleccionada.getAttribute('data-nombre-talla');
 
@@ -488,10 +474,12 @@
                         product: productId,
                         description: descripcionCompleta,
                         price: precio,
-                        codigo: 'PROD-' + Date.now(), // Generar código único
+                        codigo: 'PROD-' + Date.now(),
                         cantidad: cantidad,
                         talla: nombreTalla,
-                        stock: stockDisponible
+                        stock: stockDisponible,
+                        idProducto: parseInt(document.getElementById("productoId").value), // Asegúrate de tener este input oculto en el HTML
+                        idTalla: parseInt(opcionSeleccionada.getAttribute("data-id-talla")) // Debes agregar este data-* a tus opciones
                     });
                 }
 
