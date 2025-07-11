@@ -10,7 +10,7 @@
         <section id="inicio" class="hero">
             <h2>Toke Inka</h2>
             <p>Diseñamos y elaboramos productos peruanos con aplicaciones inspiradas en nuestra cultura</p>
-            <a href="/productos" class="btn-index">Ver Productos</a>
+            <a th:href="@{/productos}" class="btn-index">Ver Productos</a>
         </section>
 
     </div>
@@ -107,181 +107,29 @@
     </div>
 
     <!-- Modal de pago simulado -->
-<div class="modal fade" id="modalPago" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content p-4">
-      <h5 class="modal-title">Pago con tarjeta</h5>
-      <div class="modal-body">
-        
-        <input type="text" id="nombreCliente" placeholder="Nombre completo" class="form-control mb-2" required>
-        <input type="text" id="direccion" placeholder="Dirección" class="form-control mb-2" required>
-        <input type="text" id="telefono" placeholder="Teléfono" class="form-control mb-2" required>
+    <div class="modal fade" id="modalPago" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content p-4">
+                <h5 class="modal-title">Pago con tarjeta</h5>
+                <div class="modal-body">
 
-        
-        <input type="text" id="numeroTarjeta" placeholder="Número de tarjeta" class="form-control mb-2" required>
-        <input type="text" id="cci" placeholder="CCI" class="form-control mb-2" required>
-        <input type="text" id="titular" placeholder="Nombre del titular" class="form-control mb-2" required>
-        <input type="month" id="vencimiento" class="form-control mb-2" required>
+                    <input type="text" id="nombreCliente" placeholder="Nombre completo" class="form-control mb-2"
+                        required>
+                    <input type="text" id="direccion" placeholder="Dirección" class="form-control mb-2" required>
+                    <input type="text" id="telefono" placeholder="Teléfono" class="form-control mb-2" required>
 
-        <button id="btnProcesarPago" class="btn btn-success w-100">Procesar Pago</button>
-      </div>
+
+                    <input type="text" id="numeroTarjeta" placeholder="Número de tarjeta" class="form-control mb-2"
+                        required>
+                    <input type="text" id="cci" placeholder="CCI" class="form-control mb-2" required>
+                    <input type="text" id="titular" placeholder="Nombre del titular" class="form-control mb-2" required>
+                    <input type="month" id="vencimiento" class="form-control mb-2" required>
+
+                    <button id="btnProcesarPago" class="btn btn-success w-100">Procesar Pago</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-
-
-
-
-
-
-
-<script>
-document.getElementById("btnPagar").addEventListener("click", () => {
-  const modal = new bootstrap.Modal(document.getElementById("modalPago"));
-  modal.show();
-});
-
-document.getElementById("btnProcesarPago").addEventListener("click", async () => {
-  try {
-    const nombre = document.getElementById("nombreCliente").value.trim();
-    const direccion = document.getElementById("direccion").value.trim();
-    const telefono = document.getElementById("telefono").value.trim();
-
-    const tarjeta = document.getElementById("numeroTarjeta").value.trim();
-    const cci = document.getElementById("cci").value.trim();
-    const titular = document.getElementById("titular").value.trim();
-    const vencimiento = document.getElementById("vencimiento").value.trim();
-
-    
-    if (!nombre || !direccion || !telefono || !tarjeta || !cci || !titular || !vencimiento) {
-      return Swal.fire("Error", "Por favor completa todos los campos", "error");
-    }
-
-    
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-    if (carrito.length === 0) {
-      return Swal.fire("Carrito vacío", "No hay productos para procesar", "error");
-    }
-
-    console.log("🛒 Carrito obtenido:", carrito);
-
-    
-    const productos = carrito.map(item => {
-      console.log("📦 Procesando item:", item);
-      return {
-        title: item.nombre || item.title || item.product || "Producto sin nombre",
-        quantity: parseInt(item.cantidad || item.quantity || 1),
-        unit_price: parseFloat(item.precio || item.price || item.unit_price || 0)
-      };
-    });
-
-    console.log("📋 Productos preparados:", productos);
-
-    
-    const total = productos.reduce((sum, p) => sum + (p.quantity * p.unit_price), 0);
-
-    const body = {
-      nombre,
-      direccion,
-      telefono,
-      fecha: new Date().toLocaleDateString('es-PE'),
-      productos,
-      total: total.toFixed(2)
-    };
-
-    console.log("📤 Enviando datos:", body);
-
-    
-    const btnProcesar = document.getElementById("btnProcesarPago");
-    const textoOriginal = btnProcesar.innerHTML;
-    btnProcesar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Procesando...';
-    btnProcesar.disabled = true;
-
-    const response = await fetch("http://localhost:8080/api/pago/procesar", {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Accept": "application/pdf"
-      },
-      body: JSON.stringify(body)
-    });
-
-    console.log("📡 Respuesta del servidor:", response.status, response.statusText);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("❌ Error del servidor:", errorText);
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
-    }
-
-    
-    const blob = await response.blob();
-    console.log("📄 PDF generado, tamaño:", blob.size, "bytes");
-    
-    const pdfUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = pdfUrl;
-    link.download = `comprobante_pago_${new Date().getTime()}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(pdfUrl);
-
-    
-    const datosResumen = {
-      nombre,
-      direccion,
-      telefono,
-      fecha: new Date().toLocaleDateString('es-PE'),
-      productos: productos.map(p => ({
-        nombre: p.title,
-        cantidad: p.quantity,
-        precio: p.unit_price.toFixed(2),
-        subtotal: (p.quantity * p.unit_price).toFixed(2)
-      })),
-      total: total.toFixed(2)
-    };
-
-    
-    localStorage.setItem("resumenPago", JSON.stringify(datosResumen));
-    
-    
-    localStorage.removeItem("carrito");
-    
-    
-    const modal = bootstrap.Modal.getInstance(document.getElementById("modalPago"));
-    modal.hide();
-
-    
-    await Swal.fire({
-      title: "¡Pago procesado!",
-      text: "Tu comprobante ha sido descargado y serás redirigido al resumen.",
-      icon: "success",
-      timer: 2000
-    });
-
-    // Redirigir al resumen
-    window.location.href = "/resumen";
-
-  } catch (error) {
-    console.error("❌ Error al procesar pago:", error);
-    Swal.fire({
-      title: "Error",
-      text: "No se pudo procesar el pago: " + error.message,
-      icon: "error"
-    });
-  } finally {
-    
-    const btnProcesar = document.getElementById("btnProcesarPago");
-    if (btnProcesar) {
-      btnProcesar.innerHTML = "Procesar Pago";
-      btnProcesar.disabled = false;
-    }
-  }
-});
-</script>
-
-    
 
     <section class="px-md-5 px-4 pb-4 pt-4" style="background-color: rgb(238, 238, 238);">
         <h2 class="text-center d-flex justify-content-center align-items-center fw-bold pb-3 fs-2">
@@ -370,14 +218,58 @@ document.getElementById("btnProcesarPago").addEventListener("click", async () =>
 
     <footer th:replace="~{components/fragments :: footer}"></footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://sdk.mercadopago.com/js/v2"></script>
-    <script
-        src="https://www.paypal.com/sdk/js?client-id=AYhM7Gub_jwpY34KhU90XB7F6AlZOCZmitUmdZ4qjZTzkXFF6L-KXjBpJLXeA8gVDs0zYvjaiBADujQQ"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="../js/scripts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Carrito Modal -->
+    <div class="wrapper-layer" style="display: none;">
+        <div class="layer">
+            <span class="close-cart">&times;</span>
+            <table class="shopping">
+                <thead>
+                    <th>Producto</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Eliminar</th>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button id="btnPagar">Proceder a pago</button>
+        </div>
+    </div>
+
+    <div id="modalOpcionesPago" class="modal" style="display: none;">
+        <div class="modal-content">
+            <button id="btnCerrarOpcionesPago" class="btnCerrarModal"><i class="fas fa-times"></i></button>
+            <div class="payment-buttons"></div>
+            <div id="paypal-button-container"></div>
+        </div>
+    </div>
+
+    <!-- Modal de pago simulado -->
+    <div class="modal fade" id="modalPago" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content p-4">
+                <h5 class="modal-title">Pago con tarjeta</h5>
+                <div class="modal-body">
+
+                    <input type="text" id="nombreCliente" placeholder="Nombre completo" class="form-control mb-2"
+                        required>
+                    <input type="text" id="direccion" placeholder="Dirección" class="form-control mb-2" required>
+                    <input type="text" id="telefono" placeholder="Teléfono" class="form-control mb-2" required>
+
+
+                    <input type="text" id="numeroTarjeta" placeholder="Número de tarjeta" class="form-control mb-2"
+                        required>
+                    <input type="text" id="cci" placeholder="CCI" class="form-control mb-2" required>
+                    <input type="text" id="titular" placeholder="Nombre del titular" class="form-control mb-2" required>
+                    <input type="month" id="vencimiento" class="form-control mb-2" required>
+
+                    <button id="btnProcesarPago" class="btn btn-success w-100">Procesar Pago</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{components/fragments :: scripts}"></div>
 </body>
 
 </html>
