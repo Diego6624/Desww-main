@@ -1,9 +1,61 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{components/fragments :: cabecera('Productos - Panel Administrador')}">
+<head th:replace="~{components/fragments :: cabecera('Reportes de Ventas - Panel Administrador')}">
     <meta charset="UTF-8">
     <title>Reporte de Ventas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .card {
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .sales-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .products-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        .revenue-card {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+        .filter-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .btn-export {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: 500;
+        }
+        .btn-export:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            color: white;
+        }
+    </style>
 </head>
 <body class="bg-light">
 
@@ -11,36 +63,468 @@
     <header th:replace="~{components/fragments :: navAdmin}"></header>
    
     <section class="w-100 px-4">
-        <div class="d-flex justify-content-between align-items-center py-2">
-                <h1 class="align-middle"><b>Reportes de ventas</b></h1>
+        <div class="d-flex justify-content-between align-items-center py-3">
+            <h1 class="fw-bold"><i class="bi bi-graph-up"></i> Reportes de Ventas</h1>
+            <button class="btn btn-export" onclick="exportarReporte()">
+                <i class="bi bi-download"></i> Exportar Reporte
+            </button>
+        </div>
+
+        <!-- Filtros de Fecha -->
+        <div class="filter-section">
+            <h5 class="mb-3"><i class="bi bi-funnel"></i> Filtros de Búsqueda</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="fechaInicio" class="form-label">Fecha Inicio</label>
+                    <input type="date" class="form-control" id="fechaInicio" value="">
+                </div>
+                <div class="col-md-4">
+                    <label for="fechaFin" class="form-label">Fecha Fin</label>
+                    <input type="date" class="form-control" id="fechaFin" value="">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button class="btn btn-primary me-2" onclick="filtrarReportes()">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                    <button class="btn btn-secondary" onclick="limpiarFiltros()">
+                        <i class="bi bi-arrow-clockwise"></i> Limpiar
+                    </button>
+                </div>
             </div>
-    <table class="table table-light table-striped table-hover">
-        <thead class="table-dark">
-            <tr class="table-dark text-center">
-                <th>Cliente</th>
-                <th>Dirección</th>
-                <th>Teléfono</th>
-                <th>Fecha</th>
-                <th>Total</th>
-                <th>Productos</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="r : ${reportes}">
-                <td th:text="${r.nombreCliente}">Nombre</td>
-                <td th:text="${r.direccion}">Dirección</td>
-                <td th:text="${r.telefono}">Teléfono</td>
-                <td th:text="${r.fecha}">Fecha</td>
-                <td th:text="${r.total}">Total</td>
-                <td>
-                    <div class="text-muted small" th:text="${r.productos}">Producto1;Producto2</div>
-                </td>
-            </tr>
-        </tbody>
-        
-    </table>
+        </div>
+
+        <!-- Tarjetas de Estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-calendar-check display-4 mb-2"></i>
+                        <h5 class="card-title">Total Ventas</h5>
+                        <h3 class="fw-bold" id="totalVentas">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card sales-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-currency-dollar display-4 mb-2"></i>
+                        <h5 class="card-title">Ingresos</h5>
+                        <h3 class="fw-bold" id="totalIngresos">S/ 0.00</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card products-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-box-seam display-4 mb-2"></i>
+                        <h5 class="card-title">Productos Vendidos</h5>
+                        <h3 class="fw-bold" id="totalProductos">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card revenue-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-person-check display-4 mb-2"></i>
+                        <h5 class="card-title">Clientes Únicos</h5>
+                        <h3 class="fw-bold" id="totalClientes">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-bar-chart"></i> Productos Más Vendidos</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="productosChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-graph-up"></i> Ventas por Período</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="ventasChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Reportes -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-table"></i> Detalle de Ventas</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="tablaReportes">
+                        <thead class="table-dark">
+                            <tr class="text-center">
+                                <th>Cliente</th>
+                                <th>Dirección</th>
+                                <th>Teléfono</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Productos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoTabla">
+                            <!-- Los datos se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </section>
 </div>
+
+<!-- Modal para ver detalles del pedido -->
+<div class="modal fade" id="modalDetalles" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalles del Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="contenidoModal">
+                <!-- Contenido del modal -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// Variables globales para los gráficos
+let productosChart, ventasChart;
+let datosReportes = [];
+
+// Inicializar la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Establecer fechas por defecto (último mes)
+    const hoy = new Date();
+    const haceUnMes = new Date(hoy.getFullYear(), hoy.getMonth() - 1, hoy.getDate());
+    
+    document.getElementById('fechaInicio').value = haceUnMes.toISOString().split('T')[0];
+    document.getElementById('fechaFin').value = hoy.toISOString().split('T')[0];
+    
+    // Cargar datos iniciales
+    cargarReportes();
+});
+
+// Función para cargar reportes desde el servidor
+async function cargarReportes() {
+    try {
+        const fechaInicio = document.getElementById('fechaInicio').value;
+        const fechaFin = document.getElementById('fechaFin').value;
+        
+        // Construir URL con parámetros de fecha
+        let url = '/admin/reportes/api';
+        if (fechaInicio && fechaFin) {
+            url += `?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+        }
+        
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Error al cargar reportes');
+        
+        datosReportes = await response.json();
+        
+        // Actualizar la interfaz
+        actualizarEstadisticas();
+        actualizarTabla();
+        actualizarGraficos();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire('Error', 'No se pudieron cargar los reportes', 'error');
+    }
+}
+
+// Actualizar estadísticas
+function actualizarEstadisticas() {
+    const totalVentas = datosReportes.length;
+    const totalIngresos = datosReportes.reduce((sum, r) => sum + parseFloat(r.total || 0), 0);
+    const clientesUnicos = new Set(datosReportes.map(r => r.nombreCliente)).size;
+    
+    // Contar productos vendidos
+    let totalProductos = 0;
+    datosReportes.forEach(r => {
+        if (r.productos) {
+            const productos = r.productos.split(';');
+            totalProductos += productos.length;
+        }
+    });
+    
+    document.getElementById('totalVentas').textContent = totalVentas;
+    document.getElementById('totalIngresos').textContent = `S/ ${totalIngresos.toFixed(2)}`;
+    document.getElementById('totalProductos').textContent = totalProductos;
+    document.getElementById('totalClientes').textContent = clientesUnicos;
+}
+
+// Actualizar tabla
+function actualizarTabla() {
+    const tbody = document.getElementById('cuerpoTabla');
+    tbody.innerHTML = '';
+    
+    datosReportes.forEach((reporte, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${reporte.nombreCliente}</td>
+            <td>${reporte.direccion}</td>
+            <td>${reporte.telefono}</td>
+            <td>${formatearFecha(reporte.fecha)}</td>
+            <td class="fw-bold">S/ ${parseFloat(reporte.total || 0).toFixed(2)}</td>
+            <td>
+                <span class="badge bg-secondary">
+                    ${reporte.productos ? reporte.productos.split(';').length : 0} productos
+                </span>
+            </td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="verDetalles(${index})">
+                    <i class="bi bi-eye"></i> Ver
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Actualizar gráficos
+function actualizarGraficos() {
+    actualizarGraficoProductos();
+    actualizarGraficoVentas();
+}
+
+// Gráfico de productos más vendidos
+function actualizarGraficoProductos() {
+    const ctx = document.getElementById('productosChart').getContext('2d');
+    
+    // Contar productos
+    const contadorProductos = {};
+    datosReportes.forEach(r => {
+        if (r.productos) {
+            const productos = r.productos.split(';');
+            productos.forEach(producto => {
+                const nombre = producto.trim();
+                contadorProductos[nombre] = (contadorProductos[nombre] || 0) + 1;
+            });
+        }
+    });
+    
+    // Ordenar y tomar los top 10
+    const productosOrdenados = Object.entries(contadorProductos)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+    
+    const labels = productosOrdenados.map(p => p[0]);
+    const datos = productosOrdenados.map(p => p[1]);
+    
+    if (productosChart) {
+        productosChart.destroy();
+    }
+    
+    productosChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Cantidad Vendida',
+                data: datos,
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Gráfico de ventas por período
+function actualizarGraficoVentas() {
+    const ctx = document.getElementById('ventasChart').getContext('2d');
+    
+    // Agrupar ventas por fecha
+    const ventasPorFecha = {};
+    datosReportes.forEach(r => {
+        const fecha = r.fecha;
+        if (!ventasPorFecha[fecha]) {
+            ventasPorFecha[fecha] = 0;
+        }
+        ventasPorFecha[fecha] += parseFloat(r.total || 0);
+    });
+    
+    const fechasOrdenadas = Object.keys(ventasPorFecha).sort();
+    const valoresVentas = fechasOrdenadas.map(fecha => ventasPorFecha[fecha]);
+    
+    if (ventasChart) {
+        ventasChart.destroy();
+    }
+    
+    ventasChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: fechasOrdenadas.map(fecha => formatearFecha(fecha)),
+            datasets: [{
+                label: 'Ventas (S/)',
+                data: valoresVentas,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'S/ ' + value.toFixed(2);
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Funciones de utilidad
+function formatearFecha(fecha) {
+    return new Date(fecha).toLocaleDateString('es-PE');
+}
+
+function filtrarReportes() {
+    const fechaInicio = document.getElementById('fechaInicio').value;
+    const fechaFin = document.getElementById('fechaFin').value;
+    
+    if (!fechaInicio || !fechaFin) {
+        Swal.fire('Error', 'Por favor selecciona ambas fechas', 'error');
+        return;
+    }
+    
+    if (new Date(fechaInicio) > new Date(fechaFin)) {
+        Swal.fire('Error', 'La fecha de inicio no puede ser mayor a la fecha fin', 'error');
+        return;
+    }
+    
+    cargarReportes();
+}
+
+function limpiarFiltros() {
+    document.getElementById('fechaInicio').value = '';
+    document.getElementById('fechaFin').value = '';
+    cargarReportes();
+}
+
+function verDetalles(index) {
+    const reporte = datosReportes[index];
+    const productos = reporte.productos ? reporte.productos.split(';') : [];
+    
+    let contenido = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Información del Cliente</h6>
+                <p><strong>Nombre:</strong> ${reporte.nombreCliente}</p>
+                <p><strong>Dirección:</strong> ${reporte.direccion}</p>
+                <p><strong>Teléfono:</strong> ${reporte.telefono}</p>
+                <p><strong>Fecha:</strong> ${formatearFecha(reporte.fecha)}</p>
+            </div>
+            <div class="col-md-6">
+                <h6>Resumen de Compra</h6>
+                <p><strong>Total:</strong> S/ ${parseFloat(reporte.total || 0).toFixed(2)}</p>
+                <p><strong>Productos:</strong> ${productos.length}</p>
+            </div>
+        </div>
+        <hr>
+        <h6>Productos Comprados</h6>
+        <ul class="list-group">
+    `;
+    
+    productos.forEach(producto => {
+        contenido += `<li class="list-group-item">${producto.trim()}</li>`;
+    });
+    
+    contenido += '</ul>';
+    
+    document.getElementById('contenidoModal').innerHTML = contenido;
+    const modal = new bootstrap.Modal(document.getElementById('modalDetalles'));
+    modal.show();
+}
+
+function exportarReporte() {
+    if (datosReportes.length === 0) {
+        Swal.fire('Error', 'No hay datos para exportar', 'error');
+        return;
+    }
+
+    // Clonamos solo la tabla para exportarla sin afectar la vista
+    const tabla = document.getElementById('tablaReportes').cloneNode(true);
+
+    // Creamos un contenedor temporal
+    const contenedor = document.createElement('div');
+    contenedor.appendChild(tabla);
+
+    // Agregamos título opcional
+    const titulo = document.createElement('h2');
+    titulo.textContent = 'Reporte de Ventas - Tabla';
+    titulo.style.textAlign = 'center';
+    titulo.style.marginBottom = '20px';
+    contenedor.insertBefore(titulo, tabla);
+
+    // Estilos mínimos para mejor presentación
+    contenedor.style.fontSize = '12px';
+    contenedor.style.padding = '20px';
+
+    // Opciones del PDF
+    const opt = {
+        margin:       0.3,
+        filename:     `reporte_tabla_${new Date().toISOString().split('T')[0]}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+    };
+
+    html2pdf().set(opt).from(contenedor).save();
+
+    Swal.fire('Éxito', 'Tabla exportada como PDF', 'success');
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 </body>
 </html>

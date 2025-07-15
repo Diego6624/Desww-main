@@ -1,5 +1,4 @@
 $(document).ready(function () {
-    // Incluir aquí todo el código JavaScript que ya tienes en scripts.js
     var carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     var totalAmount = 0;
 

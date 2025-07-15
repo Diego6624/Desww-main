@@ -21,7 +21,7 @@
             </div>
             <div class="product">
                 <div class="image">
-                    <img th:src="@{/imagenes/camisero_azul.jpg}" alt="Producto 3c" />
+                    <img src="../../../../imagenes/camisero_azul.jpg" alt="Producto 3c" />
                 </div>
                 <h3>Camisero Azul</h3>
                 <p>Sise M</p>
@@ -31,7 +31,7 @@
             </div>
             <div class="product">
                 <div class="image">
-                    <img th:src="@{/imagenes/polo_blanco.jpg}" alt="Producto 2p" />
+                    <img src="../../../../imagenes/polo_blanco.jpg" alt="Producto 2p" />
                 </div>
                 <h3>Polo cabeza clava</h3>
                 <p>Size L</p>
@@ -80,56 +80,6 @@
             </div>
         </div>
     </section>
-
-    <div class="wrapper-layer" style="display: none;">
-        <div class="layer">
-            <span class="close-cart">&times;</span>
-            <table class="shopping">
-                <thead>
-                    <th>Producto</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Cantidad</th>
-                    <th>Eliminar</th>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <button id="btnPagar">Proceder a pago</button>
-        </div>
-    </div>
-
-    <div id="modalOpcionesPago" class="modal" style="display: none;">
-        <div class="modal-content">
-            <button id="btnCerrarOpcionesPago" class="btnCerrarModal"><i class="fas fa-times"></i></button>
-            <div class="payment-buttons"></div>
-            <div id="paypal-button-container"></div>
-        </div>
-    </div>
-
-    <!-- Modal de pago simulado -->
-    <div class="modal fade" id="modalPago" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content p-4">
-                <h5 class="modal-title">Pago con tarjeta</h5>
-                <div class="modal-body">
-
-                    <input type="text" id="nombreCliente" placeholder="Nombre completo" class="form-control mb-2"
-                        required>
-                    <input type="text" id="direccion" placeholder="Dirección" class="form-control mb-2" required>
-                    <input type="text" id="telefono" placeholder="Teléfono" class="form-control mb-2" required>
-
-
-                    <input type="text" id="numeroTarjeta" placeholder="Número de tarjeta" class="form-control mb-2"
-                        required>
-                    <input type="text" id="cci" placeholder="CCI" class="form-control mb-2" required>
-                    <input type="text" id="titular" placeholder="Nombre del titular" class="form-control mb-2" required>
-                    <input type="month" id="vencimiento" class="form-control mb-2" required>
-
-                    <button id="btnProcesarPago" class="btn btn-success w-100">Procesar Pago</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <section class="px-md-5 px-4 pb-4 pt-4" style="background-color: rgb(238, 238, 238);">
         <h2 class="text-center d-flex justify-content-center align-items-center fw-bold pb-3 fs-2">
