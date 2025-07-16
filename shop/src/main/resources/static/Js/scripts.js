@@ -1,5 +1,19 @@
 $(document).ready(function () {
-    // Incluir aquí todo el código JavaScript que ya tienes en scripts.js
+    fetch("/api/auth/user")
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            } else {
+                throw new Error("No autenticado");
+            }
+        })
+        .then(email => {
+            localStorage.setItem("authUser", email);
+        })
+        .catch(() => {
+            localStorage.removeItem("authUser");
+        });
+
     var carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     var totalAmount = 0;
 
@@ -142,6 +156,22 @@ $(document).ready(function () {
 
     // Función para agregar al carrito específica del detalle
     window.agregarAlCarrito = function () {
+        const usuario = localStorage.getItem("authUser");
+        if (!usuario) {
+            Swal.fire({
+                title: "Debes iniciar sesión",
+                text: "Para agregar productos al carrito, por favor inicia sesión o regístrate.",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonText: "Iniciar sesión",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/login"; 
+                }
+            });
+            return;
+        }
         const tallaSelect = document.getElementById('tallaSeleccionada');
         const cantidadInput = document.getElementById('cantidad');
         const nombreProduct = document.getElementById('nombreProducto');
@@ -197,8 +227,8 @@ $(document).ready(function () {
                 cantidad: cantidad,
                 talla: nombreTalla,
                 stock: stockDisponible,
-                idProducto: parseInt(document.getElementById("productoId").value), // Asegúrate de tener este input oculto en el HTML
-                idTalla: parseInt(opcionSeleccionada.getAttribute("data-id-talla")) // Debes agregar este data-* a tus opciones
+                idProducto: parseInt(document.getElementById("productoId").value), 
+                idTalla: parseInt(opcionSeleccionada.getAttribute("data-id-talla")) 
             });
         }
 

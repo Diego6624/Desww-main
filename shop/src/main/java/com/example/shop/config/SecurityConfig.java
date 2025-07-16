@@ -15,11 +15,13 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import com.example.shop.services.UsuarioService;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-@Autowired
-private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    @Autowired
+    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     @Autowired
     private UsuarioService usuarioService;
 
@@ -38,40 +40,45 @@ private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     }
 
     @Bean
-    @Order(1) // Prioridad alta: se evalúa antes
+    @Order(1)
     public SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
         http
-            .securityMatcher("/api/**") // Aplica solo a rutas /api/**
-            .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/mercadopago/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .formLogin(AbstractHttpConfigurer::disable)
-            .httpBasic(AbstractHttpConfigurer::disable);
+                .securityMatcher("/api/**") 
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/mercadopago/**").permitAll()
+                        .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        }))
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable);
         return http.build();
     }
 
     @Bean
-@Order(2)
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/register", "/contactanos/**", "/nosotros", "/login", "/css/**", "/images/**",
-                    "/js/**", "/", "/inicio", "/productos/**", "/imagenes/**")
-            .permitAll()
-            .requestMatchers("/admin/**").hasRole("ADMIN")
-            .anyRequest().authenticated())
-        .formLogin(form -> form
-            .loginPage("/login")
-            .successHandler(customAuthenticationSuccessHandler)
-            .permitAll())
-        .logout(logout -> logout
-            .logoutSuccessUrl("/")
-            .permitAll())
-        .exceptionHandling(ex -> ex.accessDeniedPage("/acceso-denegado"));
+    @Order(2)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/user").permitAll()
+                        .requestMatchers("/register", "/contactanos/**", "/nosotros", "/login", "/css/**", "/images/**",
+                                "/Js/**", "/", "/inicio", "/productos/**", "/imagenes/**")
+                        .permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .successHandler(customAuthenticationSuccessHandler)
+                        .failureUrl("/login?error=true")
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/")
+                        .permitAll())
+                .exceptionHandling(ex -> ex.accessDeniedPage("/acceso-denegado"));
 
-    return http.build();
+        return http.build();
 
         // Configuracion para insertar sin que salga error 403(prohibido)
         // http.csrf().disable()

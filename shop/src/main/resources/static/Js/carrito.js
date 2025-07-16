@@ -82,15 +82,6 @@ document.getElementById("btnProcesarPago").addEventListener("click", async () =>
         const blob = await response.blob();
         console.log("📄 PDF generado, tamaño:", blob.size, "bytes");
 
-        const pdfUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = pdfUrl;
-        link.download = `comprobante_pago_${new Date().getTime()}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(pdfUrl);
-
 
         const datosResumen = {
             nombre,

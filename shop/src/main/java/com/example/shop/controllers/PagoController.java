@@ -2,6 +2,11 @@ package com.example.shop.controllers;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.example.shop.entities.Reporte;
+import com.example.shop.entities.TallaProducto;
+import com.example.shop.repositories.ReporteRepository;
+import com.example.shop.repositories.TallaProductoRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -12,12 +17,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-
-import com.example.shop.entities.Reporte;
-import com.example.shop.entities.TallaProducto;
-import com.example.shop.repositories.ReporteRepository;
-import com.example.shop.repositories.TallaProductoRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/pago")
@@ -35,40 +34,19 @@ public class PagoController {
         try {
             System.out.println("✅ Datos recibidos: " + datos);
 
-            // Agregar fecha actual si no viene en los datos
+            // Agregar fecha si no viene
             if (!datos.containsKey("fecha")) {
                 datos.put("fecha", LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
             }
 
-            // Calcular total si no viene en los datos
+            // Calcular total si no viene
             if (!datos.containsKey("total")) {
                 double total = calcularTotal(datos);
                 datos.put("total", total);
             }
 
-            // prueba
-            Reporte reporte = new Reporte();
-            reporte.setNombreCliente((String) datos.get("nombre"));
-            reporte.setDireccion((String) datos.get("direccion"));
-            reporte.setTelefono((String) datos.get("telefono"));
-            reporte.setFecha(LocalDate.now());
-            reporte.setTotal(Double.parseDouble(datos.get("total").toString()));
-
-            // Convertir lista de productos a JSON
+            // Descontar stock por cada producto
             ObjectMapper mapper = new ObjectMapper();
-            String productosJson = mapper.writeValueAsString(datos.get("productos"));
-            reporte.setProductos(productosJson);
-
-            // Guardar en base de datos
-            reporteRepository.save(reporte);
-
-            byte[] pdfBytes = generarComprobantePDF(datos);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("attachment", "comprobante_pago.pdf");
-
-            // Descontar stock por talla
             List<Map<String, Object>> productos = mapper.convertValue(
                     datos.get("productos"),
                     mapper.getTypeFactory().constructCollectionType(List.class, Map.class));
@@ -79,20 +57,41 @@ public class PagoController {
                 Integer cantidad = ((Number) prod.get("quantity")).intValue();
 
                 TallaProducto tp = tallaProductoRepository
-                        .findByProducto_IdProductoAndTalla_IdTalla(Long.valueOf(idProducto), Long.valueOf(idTalla))
+                        .findByProducto_IdProductoAndTalla_IdTalla(idProducto, idTalla)
                         .orElseThrow(() -> new RuntimeException(
-                                "TallaProducto no encontrado para producto " + idProducto + " y talla " + idTalla));
+                                "❌ No se encontró stock para producto " + idProducto + " y talla " + idTalla));
 
                 int nuevoStock = tp.getStock() - cantidad;
                 if (nuevoStock < 0) {
                     throw new RuntimeException(
-                            "Stock insuficiente para producto " + idProducto + " y talla " + idTalla);
+                            "❌ Stock insuficiente para producto " + idProducto + " y talla " + idTalla);
                 }
 
                 tp.setStock(nuevoStock);
                 tallaProductoRepository.save(tp);
             }
+
+            // Guardar reporte de compra
+            Reporte reporte = new Reporte();
+            reporte.setNombreCliente((String) datos.get("nombre"));
+            reporte.setDireccion((String) datos.get("direccion"));
+            reporte.setTelefono((String) datos.get("telefono"));
+            reporte.setFecha(LocalDate.now());
+            reporte.setTotal(Double.parseDouble(datos.get("total").toString()));
+
+            String productosJson = mapper.writeValueAsString(productos);
+            reporte.setProductos(productosJson);
+            reporteRepository.save(reporte);
+
+            // Generar PDF
+            byte[] pdfBytes = generarComprobantePDF(datos);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "comprobante_pago.pdf");
+
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+
         } catch (Exception e) {
             System.err.println("❌ Error al procesar pago: " + e.getMessage());
             e.printStackTrace();
@@ -109,26 +108,22 @@ public class PagoController {
         documento.open();
 
         try {
-            // Encabezado
             Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.DARK_GRAY);
             Font fontSubtitulo = FontFactory.getFont(FontFactory.HELVETICA, 12, BaseColor.BLACK);
             Font fontTexto = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.BLACK);
 
-            // Título
             Paragraph titulo = new Paragraph("COMPROBANTE DE PAGO", fontTitulo);
             titulo.setAlignment(Element.ALIGN_CENTER);
             documento.add(titulo);
-            documento.add(new Paragraph(" ", fontTexto)); // Espacio
+            documento.add(new Paragraph(" ", fontTexto));
 
-            // Información del cliente
             documento.add(new Paragraph("DATOS DEL CLIENTE", fontSubtitulo));
             documento.add(new Paragraph("Fecha: " + datos.get("fecha"), fontTexto));
             documento.add(new Paragraph("Nombre: " + datos.get("nombre"), fontTexto));
             documento.add(new Paragraph("Dirección: " + datos.get("direccion"), fontTexto));
             documento.add(new Paragraph("Teléfono: " + datos.get("telefono"), fontTexto));
-            documento.add(new Paragraph(" ", fontTexto)); // Espacio
+            documento.add(new Paragraph(" ", fontTexto));
 
-            // Detalle de productos
             documento.add(new Paragraph("DETALLE DE PRODUCTOS", fontSubtitulo));
             List<Map<String, Object>> productos = (List<Map<String, Object>>) datos.get("productos");
 
@@ -146,15 +141,13 @@ public class PagoController {
                 documento.add(new Paragraph(linea, fontTexto));
             }
 
-            documento.add(new Paragraph(" ", fontTexto)); // Espacio
-
-            // Total
+            documento.add(new Paragraph(" ", fontTexto));
             Font fontTotal = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, BaseColor.BLACK);
             Paragraph total = new Paragraph(String.format("TOTAL A PAGAR: S/. %.2f", totalCalculado), fontTotal);
             total.setAlignment(Element.ALIGN_RIGHT);
             documento.add(total);
 
-            documento.add(new Paragraph(" ", fontTexto)); // Espacio
+            documento.add(new Paragraph(" ", fontTexto));
             documento.add(new Paragraph("¡Gracias por su compra!", fontSubtitulo));
 
         } finally {
