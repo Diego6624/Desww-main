@@ -167,7 +167,7 @@ $(document).ready(function () {
                 cancelButtonText: "Cancelar"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = "/login"; // Asegúrate de que esta ruta exista en tu app
+                    window.location.href = "/login"; 
                 }
             });
             return;
@@ -227,8 +227,8 @@ $(document).ready(function () {
                 cantidad: cantidad,
                 talla: nombreTalla,
                 stock: stockDisponible,
-                idProducto: parseInt(document.getElementById("productoId").value), // Asegúrate de tener este input oculto en el HTML
-                idTalla: parseInt(opcionSeleccionada.getAttribute("data-id-talla")) // Debes agregar este data-* a tus opciones
+                idProducto: parseInt(document.getElementById("productoId").value), 
+                idTalla: parseInt(opcionSeleccionada.getAttribute("data-id-talla")) 
             });
         }
 

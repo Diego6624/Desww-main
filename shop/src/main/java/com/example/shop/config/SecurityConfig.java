@@ -43,7 +43,7 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/api/**") // Aplica solo a rutas /api/**
+                .securityMatcher("/api/**") 
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/mercadopago/**").permitAll()
