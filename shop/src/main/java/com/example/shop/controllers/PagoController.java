@@ -14,9 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.shop.entities.Reporte;
-import com.example.shop.entities.TallaProducto;
 import com.example.shop.repositories.ReporteRepository;
-import com.example.shop.repositories.TallaProductoRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -26,9 +24,6 @@ public class PagoController {
 
     @Autowired
     private ReporteRepository reporteRepository;
-
-    @Autowired
-    private TallaProductoRepository tallaProductoRepository;
 
     @PostMapping(value = "/procesar", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> procesarPago(@RequestBody Map<String, Object> datos) {
@@ -68,31 +63,8 @@ public class PagoController {
             headers.setContentType(MediaType.APPLICATION_PDF);
             headers.setContentDispositionFormData("attachment", "comprobante_pago.pdf");
 
-            // Descontar stock por talla
-            List<Map<String, Object>> productos = mapper.convertValue(
-                    datos.get("productos"),
-                    mapper.getTypeFactory().constructCollectionType(List.class, Map.class));
-
-            for (Map<String, Object> prod : productos) {
-                Long idProducto = ((Number) prod.get("idProducto")).longValue();
-                Long idTalla = ((Number) prod.get("idTalla")).longValue();
-                Integer cantidad = ((Number) prod.get("quantity")).intValue();
-
-                TallaProducto tp = tallaProductoRepository
-                        .findByProducto_IdProductoAndTalla_IdTalla(Long.valueOf(idProducto), Long.valueOf(idTalla))
-                        .orElseThrow(() -> new RuntimeException(
-                                "TallaProducto no encontrado para producto " + idProducto + " y talla " + idTalla));
-
-                int nuevoStock = tp.getStock() - cantidad;
-                if (nuevoStock < 0) {
-                    throw new RuntimeException(
-                            "Stock insuficiente para producto " + idProducto + " y talla " + idTalla);
-                }
-
-                tp.setStock(nuevoStock);
-                tallaProductoRepository.save(tp);
-            }
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+
         } catch (Exception e) {
             System.err.println("❌ Error al procesar pago: " + e.getMessage());
             e.printStackTrace();
@@ -177,4 +149,5 @@ public class PagoController {
 
         return total;
     }
+
 }
